@@ -2,69 +2,54 @@
 platform linux -- Python 3.8.5, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /mnt/c/Users/Yk/Documents/Code/alphalabs/env/bin/python
 cachedir: .pytest_cache
 rootdir: /mnt/c/Users/Yk/Documents/Code/alphalabs
-collecting ... collected 7 items
+collecting ... collected 8 items / 6 deselected / 2 selected
 
-test_orderbook.py::test_price_list [0, 0, 1, 1, 1, 2, 3, 23, 46, 55, 55, 55, 100, 5000]
-PASSED
-test_orderbook.py::test_order PASSED
-test_orderbook.py::test_order_list_price_sort Submitting B Order: 200@13#Ffuj
-Submitting B Order: 20@13#Ff2uj
-Submitting B Order: 30@3#Ff3uj
-Submitting B Order: 40@20#Ff4uj
-Submitting B Order: 50@1#Ff5uj
-Submitting B Order: 60@1000#Ff6uj
-PASSED
-test_orderbook.py::test_order_list_remove_order_by_id Submitting B Order: 200@13#Ffuj
-Submitting B Order: 20@13#Ff2uj
-PASSED
-test_orderbook.py::test_order_list_insert_remove Submitting B Order: 200@13#Ffuj
-Submitting B Order: 20@13#Ff2uj
-Submitting B Order: 30@3#Ff3uj
-Submitting B Order: 40@20#Ff4uj
-Submitting B Order: 50@1#Ff5uj
-Submitting B Order: 60@1000#Ff6uj
-Submitting B Order: 30@3#D3uj
-PASSED
-test_orderbook.py::test_parse_order_book Inserting Order into Bid List
-Submitting B Order: 200@13#Ffuj
-Inserting Order into Bid List
-Submitting B Order: 150@11#Yy7P
-Inserting Order into Bid List
-Submitting B Order: 100@13#YuFU
-Inserting Order into Ask List
-Submitting S Order: 150@14#IpD8
-Inserting Order into Ask List
-Submitting S Order: 190@15#y93N
-Initial :  230
-After Processing :  80
-Inserting Order into Bid List
-Submitting B Order: 80@14#Y5wb
-Initial :  250
-After Processing :  60
-PASSED
 test_orderbook.py::test_order_book_limit_order Inserting Order into Bid List
 Submitting B Order: 300@9#Y5wb
+B ORDER IDS:  ['Y5wb']
 Inserting Order into Bid List
 Submitting B Order: 450@7#IpD8
+B ORDER IDS:  ['Y5wb', 'IpD8']
 Inserting Order into Ask List
 Submitting S Order: 280@10#IpD9
+S ORDER IDS:  ['IpD9']
 Inserting Order into Ask List
 Submitting S Order: 200@12#IpD10
+S ORDER IDS:  ['IpD9', 'IpD10']
 Inserting Order into Ask List
 Submitting S Order: 250@14#IpD11
+S ORDER IDS:  ['IpD9', 'IpD10', 'IpD11']
 Initial :  500
+Target Order :  IpD9
 After Processing :  220
 Initial :  220
+Target Order :  IpD10
 After Processing :  20
 Inserting Order into Bid List
 Submitting B Order: 20@12#I8LO
-["B : ['300@9#Y5wb'], S : []",
- "B : ['450@7#IpD8', '300@9#Y5wb'], S : []",
- "B : ['450@7#IpD8', '300@9#Y5wb'], S : ['280@10#IpD9']",
- "B : ['450@7#IpD8', '300@9#Y5wb'], S : ['280@10#IpD9', '200@12#IpD10']",
- "B : ['450@7#IpD8', '300@9#Y5wb'], S : ['280@10#IpD9', '200@12#IpD10', "
- "'250@14#IpD11']",
- "B : ['450@7#IpD8', '300@9#Y5wb', '20@12#I8LO'], S : ['250@14#IpD11']"]
+B ORDER IDS:  ['Y5wb', 'IpD8', 'I8LO']
+PASSED
+test_orderbook.py::test_order_book_market_order Inserting Order into Bid List
+Submitting B Order: 300@9#Y5wb
+B ORDER IDS:  ['Y5wb']
+Inserting Order into Bid List
+Submitting B Order: 450@7#IpD8
+B ORDER IDS:  ['Y5wb', 'IpD8']
+Inserting Order into Ask List
+Submitting S Order: 250@14#IpD9
+S ORDER IDS:  ['IpD9']
+Inserting Order into Ask List
+Submitting S Order: 290@16#IpD10
+S ORDER IDS:  ['IpD9', 'IpD10']
+Processing Market Order
+Not Side S Priority Order ID :  Y5wb
+Initial :  400
+Target Order :  Y5wb
+After Processing :  100
+Not Side S Priority Order ID :  IpD8
+Initial :  100
+Target Order :  IpD8
+After Processing :  0
 PASSED
 
-============================== 7 passed in 0.19s ===============================
+======================= 2 passed, 6 deselected in 0.24s ========================

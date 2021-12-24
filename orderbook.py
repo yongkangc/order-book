@@ -67,38 +67,51 @@ class OrderBook:
                 print("Inserting Order into Ask List")
                 self.asks.insert_order(
                     side, order_id, quantity_to_trade, price)
+    # prob here
 
     def process_market_order(self, side, quantity):
+        print("Processing Market Order")
         quantity_to_trade = quantity
         if side == 'B':
             while quantity_to_trade > 0 and self.asks.num_orders > 0:
-                best_ask_price_order = self.asks.get_min_price_order()
+                priority_order_id = self.asks.order_ids[0]
+                print(f"Not Side {side} Priority Order ID : ",
+                      priority_order_id)
+
+                priority_order = self.asks.order_map.get(priority_order_id)
                 quantity_to_trade = self.process_order(
-                    quantity_to_trade, best_ask_price_order)
+                    quantity_to_trade, priority_order)
             if quantity_to_trade > 0:
                 return  # cancel order when market order is not filled
 
         elif side == 'S':
             while quantity_to_trade > 0 and self.bids.num_orders > 0:
-                best_bid_price_order = self.bids.get_max_price_order()
+                priority_order_id = self.bids.order_ids[0]
+                print(f"Not Side {side} Priority Order ID : ",
+                      priority_order_id)
+                priority_order = self.bids.order_map.get(priority_order_id)
                 quantity_to_trade = self.process_order(
-                    quantity_to_trade, best_bid_price_order)
+                    quantity_to_trade, priority_order)
             if quantity_to_trade > 0:
                 return
 
-    def process_order(self, quantity_to_trade, target_order):
+    def process_order(self, quantity_to_trade, target_order_obj):
         """ Processes the order by finding the best price and quantity to trade. """
         print("Initial : ", quantity_to_trade)
-
+        print("Target Order : ", target_order_obj.order_id)
         if quantity_to_trade > 0:
-            if quantity_to_trade > target_order.quantity:
-                quantity_to_trade -= target_order.quantity
-                target_order.quantity = 0
-                self.asks.remove_order(target_order)
+            if quantity_to_trade > target_order_obj.quantity:
+                quantity_to_trade -= target_order_obj.quantity
+                target_order_obj.quantity = 0
+                if target_order_obj.side == "B":
+                    self.bids.remove_order(target_order_obj)
+                elif target_order_obj.side == "S":
+                    self.asks.remove_order(target_order_obj)
 
-            elif quantity_to_trade < target_order.quantity:
-                target_order.quantity -= quantity_to_trade
+            elif quantity_to_trade < target_order_obj.quantity:
+                target_order_obj.quantity -= quantity_to_trade
                 quantity_to_trade = 0
+                # need to remove the order from the list
 
         print("After Processing : ", quantity_to_trade)
         return quantity_to_trade
@@ -107,8 +120,10 @@ class OrderBook:
         # find the order id in both bid and ask, and remove it from the list
         if order_id in self.bids.order_map:
             self.bids.remove_order(order_id)
+            self.bids.order_ids.remove(order_id)
         elif order_id in self.asks.order_map:
             self.asks.remove_order(order_id)
+            self.asks.order_ids.remove(order_id)
 
 
 class OrderList:
@@ -117,6 +132,7 @@ class OrderList:
     def __init__(self, side):
         self.price_map = defaultdict(list)  # Dict of price : Order object
         self.prices = PriceList()  # List of prices
+        self.order_ids = []  # list of order by priority
         self.order_map = {}  # Dictionary containing order_id : Order object
         self.num_orders = 0  # Contains count of Orders in tree
         self.side = side  # Contains side of the order
@@ -152,8 +168,10 @@ class OrderList:
 
         self.price_map[price].append(order)
         self.order_map[order_id] = order
+        self.order_ids.append(order_id)
         self.prices.add(price)
         self.num_orders += 1
+        print(f"{side} ORDER IDS:  {self.order_ids}")
 
     def update_order(self, order_id, update_quantity):
         """Update the order to given commands"""
@@ -172,6 +190,8 @@ class OrderList:
 
     def remove_order_by_id(self, order_id):
         order = self.order_map.get(order_id)
+        # print(self.order_ids)
+        self.order_ids.remove(order_id)
         if order != None:
             self.num_orders -= 1
             del self.order_map[order_id]
@@ -193,6 +213,7 @@ class OrderList:
                 self.price_map[order_price] = price_list
 
     def get_orders(self):
+        """Get order by price"""
         orders = []
         price_list = self.prices.get_prices()  # get all prices
 
@@ -205,9 +226,19 @@ class OrderList:
                 orders.append(order)
         return orders
 
+    def get_orders_by_id(self):
+        """Get order by id priority"""
+        orders = []
+        for order_id in self.order_ids:
+            orders.append(self.order_map[order_id])
+        return orders
+
     def __str__(self) -> str:
         """Returns string representation of the order list sorted by price"""
-        return f"{self.side} : {[str(order) for order in self.get_orders()]}"
+        if self.side == 'B':
+            return f"{self.side} : {[str(order) for order in self.get_orders()][::-1]}"
+        elif self.side == 'S':
+            return f"{self.side} : {[str(order) for order in self.get_orders()]}"
 
 
 class Order:

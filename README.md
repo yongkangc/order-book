@@ -21,7 +21,8 @@ Practices used :
 
 ### Testing
 
-`pytest -k'test_order_book_limit_order' -vv -s | tee test.log`
+`pytest -k'test_order_book' -vv -s | tee test.log`
+`pytest -k'test_order_book_market' -vv -s | tee test.log`
 
 ### References
 

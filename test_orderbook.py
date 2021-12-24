@@ -97,26 +97,17 @@ def test_order_book_limit_order(limit_orders):
     ob = OrderBook()
     for order in limit_orders:
         ob.parse_order(order)
-    assert ob.transcation_log[-1] == "B : ['450@7#IpD8', '300@9#Y5wb', '20@12#I8LO'], S : ['250@14#IpD11']"
+    assert ob.transcation_log[-1] == "B : ['20@12#I8LO', '300@9#Y5wb', '450@7#IpD8'], S : ['250@14#IpD11']"
     # pprint(ob.transcation_log)
 
 
-def test_market_order(market_orders):
+def test_order_book_market_order(market_orders):
     ob = OrderBook()
     for order in market_orders:
         ob.parse_order(order)
-    pprint(ob.transcation_log)
 
-    # def test_remove_object_from_list():
-    #     class Test:
-    #         def __init__(self, name):
-    #             self.name = name
-
-    #         def __str__(self):
-    #             return self.name
-    #     test_order = [Test("test1"), Test("test2"), Test("test3")]
-    #     test_order.remove(Test("test2"))
-    #     assert test_order == [Test("test1"), Test("test3")]
+    assert ob.transcation_log[-1] == "B : ['350@7#IpD8'], S : ['250@14#IpD9', '290@16#IpD10']"
+    # pprint(ob.transcation_log)
 
 
 if __name__ == '__main__':
