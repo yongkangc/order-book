@@ -7,7 +7,7 @@ from pprint import pprint
 
 @pytest.fixture
 def orders():
-    with open('orders2.txt', 'r') as f:
+    with open('orders.txt', 'r') as f:
         orders = f.read().splitlines()
         return orders
 
@@ -24,6 +24,13 @@ def market_orders():
     with open('market_orders.txt', 'r') as f:
         limit_order = f.read().splitlines()
         return limit_order
+
+
+@pytest.fixture
+def ioc_orders():
+    with open('ioc_orders.txt', 'r') as f:
+        ioc_order = f.read().splitlines()
+        return ioc_order
 
 
 def test_price_list():
@@ -87,10 +94,11 @@ def test_order_list_insert_remove():
         order_list) == "B : ['50@1#Ff5uj', '30@3#D3uj', '200@13#Ffuj', '20@13#Ff2uj', '40@20#Ff4uj', '60@1000#Ff6uj']"
 
 
-def test_parse_order_book(orders):
+def test_order_book_market_limit(orders):
     ob = OrderBook()
     for order in orders:
         ob.parse_order(order)
+    assert ob.transcation_log[-1] == "B : ['80@14#Y5wb', '100@13#YuFU', '150@11#Yy7P'], S : []"
 
 
 def test_order_book_limit_order(limit_orders):
@@ -98,7 +106,6 @@ def test_order_book_limit_order(limit_orders):
     for order in limit_orders:
         ob.parse_order(order)
     assert ob.transcation_log[-1] == "B : ['20@12#I8LO', '300@9#Y5wb', '450@7#IpD8'], S : ['250@14#IpD11']"
-    # pprint(ob.transcation_log)
 
 
 def test_order_book_market_order(market_orders):
@@ -108,6 +115,14 @@ def test_order_book_market_order(market_orders):
 
     assert ob.transcation_log[-1] == "B : ['350@7#IpD8'], S : ['250@14#IpD9', '290@16#IpD10']"
     # pprint(ob.transcation_log)
+
+
+def test_order_book_ioc_order(ioc_orders):
+    ob = OrderBook()
+    for order in ioc_orders:
+        ob.parse_order(order)
+    # assert ob.transcation_log[-1] == "B : ['100@13#Yy7P'], S : ['200@14#Y5wb']"
+    pprint(ob.transcation_log)
 
 
 if __name__ == '__main__':

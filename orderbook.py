@@ -37,6 +37,10 @@ class OrderBook:
             order_id = order_command[1]
             self.cancel_order(order_id)
 
+        elif action == "END":
+            if len(self.transcation_log) > 0:
+                return self.transcation_log[-1]
+
         self.transcation_log.append(
             f"{str(self.bids)}, {str(self.asks)}")
 
@@ -95,6 +99,31 @@ class OrderBook:
             if quantity_to_trade > 0:
                 return
 
+    def process_ioc_order(self, side, order_id, quantity, price):
+        """
+        An IOC Order is similar to a Limit Order, except if the IOC Order is not executed fully, 
+        the remaining quantity will be cancelled, instead of being added to the OB. 
+        Like the Limit Order, an IOC Order consists of a Side, a Quantity and a Price.
+        """
+        quantity_to_trade = quantity
+        if side == 'B':
+            while quantity_to_trade > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
+                best_ask_price_order = self.asks.get_min_price_order()
+                quantity_to_trade = self.process_order(
+                    quantity_to_trade, best_ask_price_order)
+
+            if quantity_to_trade > 0:
+                return  # end order when order is not filled
+
+        elif side == 'S':
+            while quantity_to_trade > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
+                best_bid_price_order = self.bids.get_max_price_order()
+                quantity_to_trade = self.process_order(
+                    quantity_to_trade, best_bid_price_order)
+
+            if quantity_to_trade > 0:
+                return
+
     def process_order(self, quantity_to_trade, target_order_obj):
         """ Processes the order by finding the best price and quantity to trade. """
         print("Initial : ", quantity_to_trade)
@@ -119,11 +148,11 @@ class OrderBook:
     def cancel_order(self, order_id):
         # find the order id in both bid and ask, and remove it from the list
         if order_id in self.bids.order_map:
-            self.bids.remove_order(order_id)
-            self.bids.order_ids.remove(order_id)
+            order = self.bids.order_map.get(order_id)
+            self.bids.remove_order(order)
         elif order_id in self.asks.order_map:
-            self.asks.remove_order(order_id)
-            self.asks.order_ids.remove(order_id)
+            order = self.asks.order_map.get(order_id)
+            self.asks.remove_order(order)
 
 
 class OrderList:
