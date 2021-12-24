@@ -19,6 +19,10 @@ Practices used :
 
 - Test driven development is used as correctness is very important for the implementation of order book.
 
+### Testing
+
+`pytest -k'test_order_book_limit_order' -vv -s | tee test.log`
+
 ### References
 
 https://web.archive.org/web/20110410160306/http://howtohft.wordpress.com:80/2011/02/15/how-to-build-a-fast-limit-order-book
