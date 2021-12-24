@@ -2,7 +2,7 @@
 platform linux -- Python 3.8.5, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /mnt/c/Users/Yk/Documents/Code/alphalabs/env/bin/python
 cachedir: .pytest_cache
 rootdir: /mnt/c/Users/Yk/Documents/Code/alphalabs
-collecting ... collected 8 items / 7 deselected / 1 selected
+collecting ... collected 9 items / 5 deselected / 4 selected
 
 test_orderbook.py::test_order_book_market_limit Inserting Order into Bid List
 Submitting B Order: 200@13#Ffuj
@@ -30,17 +30,74 @@ Not Side B Priority Order ID :  y93N
 Initial :  250
 Target Order :  y93N
 After Processing :  60
-["B : ['200@13#Ffuj'], S : []",
- "B : ['200@13#Ffuj', '150@11#Yy7P'], S : []",
- "B : ['100@13#YuFU', '200@13#Ffuj', '150@11#Yy7P'], S : []",
- "B : ['100@13#YuFU', '200@13#Ffuj', '150@11#Yy7P'], S : ['150@14#IpD8']",
- "B : ['100@13#YuFU', '200@13#Ffuj', '150@11#Yy7P'], S : ['150@14#IpD8', "
- "'190@15#y93N']",
- "B : ['80@14#Y5wb', '100@13#YuFU', '200@13#Ffuj', '150@11#Yy7P'], S : "
- "['190@15#y93N']",
- "B : ['80@14#Y5wb', '100@13#YuFU', '200@13#Ffuj', '150@11#Yy7P'], S : []",
- "B : ['80@14#Y5wb', '100@13#YuFU', '150@11#Yy7P'], S : []",
- "B : ['80@14#Y5wb', '100@13#YuFU', '150@11#Yy7P'], S : []"]
+PASSED
+test_orderbook.py::test_order_book_limit_order Inserting Order into Bid List
+Submitting B Order: 300@9#Y5wb
+B ORDER IDS:  ['Y5wb']
+Inserting Order into Bid List
+Submitting B Order: 450@7#IpD8
+B ORDER IDS:  ['Y5wb', 'IpD8']
+Inserting Order into Ask List
+Submitting S Order: 280@10#IpD9
+S ORDER IDS:  ['IpD9']
+Inserting Order into Ask List
+Submitting S Order: 200@12#IpD10
+S ORDER IDS:  ['IpD9', 'IpD10']
+Inserting Order into Ask List
+Submitting S Order: 250@14#IpD11
+S ORDER IDS:  ['IpD9', 'IpD10', 'IpD11']
+Initial :  500
+Target Order :  IpD9
+After Processing :  220
+Initial :  220
+Target Order :  IpD10
+After Processing :  20
+Inserting Order into Bid List
+Submitting B Order: 20@12#I8LO
+B ORDER IDS:  ['Y5wb', 'IpD8', 'I8LO']
+PASSED
+test_orderbook.py::test_order_book_market_order Inserting Order into Bid List
+Submitting B Order: 300@9#Y5wb
+B ORDER IDS:  ['Y5wb']
+Inserting Order into Bid List
+Submitting B Order: 450@7#IpD8
+B ORDER IDS:  ['Y5wb', 'IpD8']
+Inserting Order into Ask List
+Submitting S Order: 250@14#IpD9
+S ORDER IDS:  ['IpD9']
+Inserting Order into Ask List
+Submitting S Order: 290@16#IpD10
+S ORDER IDS:  ['IpD9', 'IpD10']
+Processing Market Order
+Not Side S Priority Order ID :  Y5wb
+Initial :  400
+Target Order :  Y5wb
+After Processing :  100
+Not Side S Priority Order ID :  IpD8
+Initial :  100
+Target Order :  IpD8
+After Processing :  0
+PASSED
+test_orderbook.py::test_order_book_ioc_order Inserting Order into Bid List
+Submitting B Order: 300@9#Y5wb
+B ORDER IDS:  ['Y5wb']
+Inserting Order into Bid List
+Submitting B Order: 450@7#IpD8
+B ORDER IDS:  ['Y5wb', 'IpD8']
+Inserting Order into Ask List
+Submitting S Order: 250@10#IpD9
+S ORDER IDS:  ['IpD9']
+Inserting Order into Ask List
+Submitting S Order: 290@12#IpD10
+S ORDER IDS:  ['IpD9', 'IpD10']
+Initial :  400
+Target Order :  Y5wb
+After Processing :  100
+["B : ['300@9#Y5wb'], S : []",
+ "B : ['300@9#Y5wb', '450@7#IpD8'], S : []",
+ "B : ['300@9#Y5wb', '450@7#IpD8'], S : ['250@10#IpD9']",
+ "B : ['300@9#Y5wb', '450@7#IpD8'], S : ['250@10#IpD9', '290@12#IpD10']",
+ "B : ['450@7#IpD8'], S : ['250@10#IpD9', '290@12#IpD10']"]
 PASSED
 
-======================= 1 passed, 7 deselected in 0.14s ========================
+======================= 4 passed, 5 deselected in 0.23s ========================

@@ -121,7 +121,7 @@ def test_order_book_ioc_order(ioc_orders):
     ob = OrderBook()
     for order in ioc_orders:
         ob.parse_order(order)
-    # assert ob.transcation_log[-1] == "B : ['100@13#Yy7P'], S : ['200@14#Y5wb']"
+    assert ob.transcation_log[-1] == "B : ['450@7#IpD8'], S : ['250@10#IpD9', '290@12#IpD10']"
     pprint(ob.transcation_log)
 
 

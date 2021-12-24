@@ -32,6 +32,9 @@ class OrderBook:
                 self.process_limit_order(side, order_id, quantity, price)
             elif order_type == 'MO':
                 self.process_market_order(side, quantity)
+            elif order_type == 'IOC':
+                price = int(order_command[5])
+                self.process_ioc_order(side, order_id, quantity, price)
 
         elif action == 'CXL':  # cancel order
             order_id = order_command[1]
@@ -41,8 +44,7 @@ class OrderBook:
             if len(self.transcation_log) > 0:
                 return self.transcation_log[-1]
 
-        self.transcation_log.append(
-            f"{str(self.bids)}, {str(self.asks)}")
+        self.transcation_log.appen̥̥̥̥d(f"{str(self.bids)}, {str(self.asks)}")
 
     def process_limit_order(self, side, order_id, quantity, price):
         # add to txn log
