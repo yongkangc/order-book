@@ -58,18 +58,16 @@ class OrderBook:
         self.transcation_log.append(f"{str(self.bids)}, {str(self.asks)}")
 
     def process_limit_order(self, side, order_id, quantity, price):
-        # add to txn log
         quantity_to_trade = quantity
         if side == 'B':
             if self.asks.num_orders <= 0 or price < self.asks.min_price():
                 self.output_log.append(0)
+
             while quantity_to_trade > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
                 best_ask_price_order = self.asks.get_min_price_order()
                 quantity_to_trade = self.process_order(
                     quantity_to_trade, best_ask_price_order)
 
-            # when there is no more ask order, or the price is less than the ask order,
-            # add the order to the bid list
             if quantity_to_trade > 0:
                 self.bids.insert_order(
                     side, order_id, quantity_to_trade, price)
@@ -77,6 +75,7 @@ class OrderBook:
         elif side == 'S':
             if self.bids.num_orders <= 0 or price > self.bids.max_price():
                 self.output_log.append(0)
+
             while quantity_to_trade > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
                 best_bid_price_order = self.bids.get_max_price_order()
                 quantity_to_trade = self.process_order(
@@ -85,6 +84,8 @@ class OrderBook:
             if quantity_to_trade > 0:
                 self.asks.insert_order(
                     side, order_id, quantity_to_trade, price)
+
+        # self.store_cost_output(quantity, quantity_to_trade, price)
 
     def process_market_order(self, side, quantity):
         quantity_to_trade = quantity
@@ -178,8 +179,6 @@ class OrderBook:
 
     def process_order(self, quantity_to_trade, target_order_obj):
         """ Processes the order by finding the best price and quantity to trade. """
-        print("Initial quantity to fill : ", quantity_to_trade)
-        print("Target Order to fill : ", target_order_obj.order_id)
         initial_quantity = quantity_to_trade
 
         if quantity_to_trade > target_order_obj.quantity:
@@ -195,10 +194,8 @@ class OrderBook:
             target_order_obj.quantity -= quantity_to_trade
             quantity_to_trade = 0  # need to remove the order from the list
 
-        print("After Processing, Qty to fill: ", quantity_to_trade)
-        processed_quantity = initial_quantity - quantity_to_trade
-        total_cost = processed_quantity * target_order_obj.price
-        self.output_log.append(total_cost)
+        self.store_cost_output(
+            initial_quantity, quantity_to_trade, target_order_obj.price)
 
         return quantity_to_trade
 
@@ -227,6 +224,7 @@ class OrderBook:
             self.asks.update_order(order_id, new_quantity, new_price)
 
     def store_cost_output(self, initial_quantity, final_quantity, price):
+        print("storing cost output", (initial_quantity - final_quantity) * price)
         self.output_log.append((initial_quantity - final_quantity) * price)
 
     def get_output(self) -> str:

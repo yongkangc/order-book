@@ -4,116 +4,30 @@ cachedir: .pytest_cache
 rootdir: /mnt/c/Users/Yk/Documents/Code/alphalabs
 collecting ... collected 3 items / 2 deselected / 1 selected
 
-test_orderbook.py::test_order_book_2 Inserting Order into Bid List
-Submitting B Order: 300@12#N1Eh
-B ORDER IDS:  ['N1Eh']
-[0]
-Inserting Order into Bid List
-Submitting B Order: 250@11#OGxb
-B ORDER IDS:  ['N1Eh', 'OGxb']
-[0, 0]
-Inserting Order into Ask List
-Submitting S Order: 350@14#JSvU
-S ORDER IDS:  ['JSvU']
-[0, 0, 0]
-Inserting Order into Ask List
-Submitting S Order: 320@15#uH6w
-S ORDER IDS:  ['JSvU', 'uH6w']
-[0, 0, 0, 0]
-Initial quantity to fill :  150
-Target Order to fill :  N1Eh
-After Processing, Qty to fill:  0
-[0, 0, 0, 0, 1800]
-Initial quantity to fill :  500
-Target Order to fill :  JSvU
-After Processing, Qty to fill:  150
-[0, 0, 0, 0, 1800, 4900]
-Order IDs FOK: ['N1Eh']
-Orders qty avaliable for FOK:  150
-[0, 0, 0, 0, 1800, 4900, 0]
-Order IDs FOK: ['N1Eh', 'OGxb']
-Orders qty avaliable for FOK:  400
-Initial quantity to fill :  200
-Target Order to fill :  N1Eh
-After Processing, Qty to fill:  50
-Initial quantity to fill :  50
-Target Order to fill :  OGxb
-After Processing, Qty to fill:  0
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550]
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0]
-Order IDs FOK: []
-Orders qty avaliable for FOK:  0
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0]
-Order IDs FOK: ['OGxb']
-Orders qty avaliable for FOK:  200
-Initial quantity to fill :  200
-Target Order to fill :  OGxb
-After Processing, Qty to fill:  200
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0]
-Order IDs FOK: []
-Orders qty avaliable for FOK:  0
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0]
-Order IDs FOK: ['OGxb']
-Orders qty avaliable for FOK:  200
-Initial quantity to fill :  200
-Target Order to fill :  OGxb
-After Processing, Qty to fill:  200
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0]
-Order IDs FOK: ['OGxb']
-Orders qty avaliable for FOK:  200
-Initial quantity to fill :  200
-Target Order to fill :  OGxb
-After Processing, Qty to fill:  200
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0, 0]
-Inserting Order into Bid List
-Submitting B Order: 250@12#2va9
-B ORDER IDS:  ['OGxb', '2va9']
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0, 0, 0]
-Inserting Order into Bid List
-Submitting B Order: 300@11#9zS1
-B ORDER IDS:  ['OGxb', '2va9', '9zS1']
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0, 0, 0, 0]
-Submitting B Order: 480@11#2va9
-B ORDER IDS:  ['OGxb', '9zS1', '2va9']
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0, 0, 0, 0]
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0, 0, 0, 0]
-0
-0
-0
-0
-1800
-4900
-0
-1800
-550
+test_orderbook.py::test_order_book_1 Submitting B Order: 200@13#Ffuj
+B ORDER IDS:  ['Ffuj']
+Submitting B Order: 150@11#Yy7P
+B ORDER IDS:  ['Ffuj', 'Yy7P']
+Submitting B Order: 100@13#YuFU
+B ORDER IDS:  ['Ffuj', 'Yy7P', 'YuFU']
+Submitting S Order: 150@14#IpD8
+S ORDER IDS:  ['IpD8']
+Submitting S Order: 190@15#y93N
+S ORDER IDS:  ['IpD8', 'y93N']
+storing cost output 2100
+Submitting B Order: 80@14#Y5wb
+B ORDER IDS:  ['Ffuj', 'Yy7P', 'YuFU', 'Y5wb']
+storing cost output 2850
 0
 0
 0
 0
 0
-0
-0
-0
-B: 480@11#2va9 170@11#9zS1 200@11#OGxb
-S: 320@15#uH6w
-[0, 0, 0, 0, 1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0, 0, 0, 0, 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb', 'S: 320@15#uH6w']
-['B: 150@12#N1Eh 250@11#OGxb, S: 350@14#JSvU 320@15#uH6w',
- 'B: 150@12#N1Eh 250@11#OGxb, S: 320@15#uH6w',
- 'B: 150@12#N1Eh 250@11#OGxb, S: 320@15#uH6w',
-
- 'B: 200@11#OGxb, S: 320@15#uH6w',
- 'B: 200@11#OGxb, S: 320@15#uH6w',
- 'B: 200@11#OGxb, S: 320@15#uH6w',
- 'B: 200@11#OGxb, S: 320@15#uH6w',
- 'B: 200@11#OGxb, S: 320@15#uH6w',
- 'B: 200@11#OGxb, S: 320@15#uH6w',
- 'B: 200@11#OGxb, S: 320@15#uH6w',
- 
- 'B: 250@12#2va9 200@11#OGxb, S: 320@15#uH6w',
- 'B: 250@12#2va9 300@11#9zS1 200@11#OGxb, S: 320@15#uH6w',
- 'B: 480@11#2va9 300@11#9zS1 200@11#OGxb, S: 320@15#uH6w',
- 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb, S: 320@15#uH6w']
-[1800, 4900, 0, 1800, 550, 0, 0, 0, 0, 0, 0, 0, 0, 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb', 'S: 320@15#uH6w']
+2100
+2850
+B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P
+S:
+[0, 0, 0, 0, 0, 2100, 2850, 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P', 'S:']
 PASSED
 
-======================= 1 passed, 2 deselected in 0.20s ========================
+======================= 1 passed, 2 deselected in 0.18s ========================
