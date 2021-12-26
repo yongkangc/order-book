@@ -116,7 +116,6 @@ class OrderBook:
         """
         An IOC Order is similar to a Limit Order, except if the IOC Order is not executed fully,
         the remaining quantity will be cancelled, instead of being added to the OB.
-        Like the Limit Order, an IOC Order consists of a Side, a Quantity and a Price.
         """
         quantity_to_trade = quantity
         if side == 'B':
@@ -220,7 +219,7 @@ class OrderBook:
 
         The updated order will be treated as a newly-inserted order, which means it will be given lower priority
         compared to other existing orders of the same Price. The only exception to this rule is when the
-        Price remains the same and the Quantity decreases (or also remains the same), in which case, the order's priority will remain the same.
+        Price remains the same and the Quantity decreases (or also remains the same).
         """
         if order_id in self.bids.order_map:
             self.bids.update_order(order_id, new_quantity, new_price)
@@ -271,17 +270,14 @@ class OrderList:
     def insert_order(self, side, order_id, quantity, price):
         """
         Inserts an order into the order list.
-        Adds to the price map, order map, price list of order list
+        Adds to the price map, order map, price list of order list.
         """
         order = Order(side, order_id, quantity, price)
-        print(f"Submitting {side} Order: {order.__str__()}")
-
         self.price_map[price].append(order)
         self.order_map[order_id] = order
         self.order_ids.append(order_id)
         self.prices.add(price)
         self.num_orders += 1
-        print(f"{side} ORDER IDS:  {self.order_ids}")
 
     def update_order(self, order_id, new_quantity, new_price):
 
@@ -295,10 +291,7 @@ class OrderList:
             return
         # else we need to remove the order and add the new order with the same order id
         order_side = order.side
-        print(self.order_ids, 1)
         self.remove_order(order)
-        print(self.order_ids, 2)
-
         self.insert_order(order_side, order_id, new_quantity, new_price)
 
     def remove_order(self, order):
@@ -450,7 +443,7 @@ class Order:
 class PriceList:
     """
     Double linked list to store prices and maintain sorted order.
-    Doubly linked list allows us to get the min and max price in O(1) time.
+    It allows us to get the min and max price in O(1) time.
     It allows to maintain the sorted insertion order at less or equals to O(N) time.
     """
 
