@@ -4,30 +4,93 @@ cachedir: .pytest_cache
 rootdir: /mnt/c/Users/Yk/Documents/Code/alphalabs
 collecting ... collected 3 items / 2 deselected / 1 selected
 
-test_orderbook.py::test_order_book_1 Submitting B Order: 200@13#Ffuj
-B ORDER IDS:  ['Ffuj']
-Submitting B Order: 150@11#Yy7P
-B ORDER IDS:  ['Ffuj', 'Yy7P']
-Submitting B Order: 100@13#YuFU
-B ORDER IDS:  ['Ffuj', 'Yy7P', 'YuFU']
-Submitting S Order: 150@14#IpD8
-S ORDER IDS:  ['IpD8']
-Submitting S Order: 190@15#y93N
-S ORDER IDS:  ['IpD8', 'y93N']
-Submitting B Order: 80@14#Y5wb
-B ORDER IDS:  ['Ffuj', 'Yy7P', 'YuFU', 'Y5wb']
-storing cost output 2100
-storing cost output 2850
+test_orderbook.py::test_order_book_2 Submitting B Order: 300@12#N1Eh
+B ORDER IDS:  ['N1Eh']
+[0]
+Submitting B Order: 250@11#OGxb
+B ORDER IDS:  ['N1Eh', 'OGxb']
+[0, 0]
+Submitting S Order: 350@14#JSvU
+S ORDER IDS:  ['JSvU']
+[0, 0, 0]
+Submitting S Order: 320@15#uH6w
+S ORDER IDS:  ['JSvU', 'uH6w']
+[0, 0, 0, 0]
+storing cost output 1800
+[0, 0, 0, 0, 1800]
+storing cost output 4900
+[0, 0, 0, 0, 1800, 4900]
+Order IDs FOK: ['N1Eh']
+Orders qty avaliable for FOK:  150
+[0, 0, 0, 0, 1800, 4900, 0]
+Order IDs FOK: ['N1Eh', 'OGxb']
+Orders qty avaliable for FOK:  400
+[0, 0, 0, 0, 1800, 4900, 0, 2350]
+Submitting B Order: 250@12#2va9
+B ORDER IDS:  ['OGxb', '2va9']
+[0, 0, 0, 0, 1800, 4900, 0, 2350, 0]
+Submitting B Order: 300@11#9zS1
+B ORDER IDS:  ['OGxb', '2va9', '9zS1']
+[0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0]
+Submitting B Order: 480@11#2va9
+B ORDER IDS:  ['OGxb', '9zS1', '2va9']
+[0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0]
+[0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0]
 0
 0
 0
 0
+1800
+4900
 0
-2100
-2850
-B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P
-S:
-[0, 0, 0, 0, 0, 2100, 2850, 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P', 'S:']
-PASSED
+2350
+0
+0
+B: 480@11#2va9 170@11#9zS1 200@11#OGxb
+S: 320@15#uH6w
+[0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0, 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb', 'S: 320@15#uH6w']
+['B: 250@12#2va9 300@11#9zS1 200@11#OGxb, S: 320@15#uH6w',
+ 'B: 480@11#2va9 300@11#9zS1 200@11#OGxb, S: 320@15#uH6w',
+ 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb, S: 320@15#uH6w']
+[0, 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb', 'S: 320@15#uH6w']
+FAILED
 
-======================= 1 passed, 2 deselected in 0.24s ========================
+=================================== FAILURES ===================================
+______________________________ test_order_book_2 _______________________________
+
+orders2 = ['SUB LO B N1Eh 300 12 ', 'SUB LO B OGxb 250 11 ', 'SUB LO S JSvU 350 14 ', 'SUB LO S uH6w 320 15 ', 'SUB IOC S ckMR 150 10 ', 'SUB IOC B DVeP 500 14 ', ...]
+
+    def test_order_book_2(orders2):
+        ob = OrderBook()
+        for order in orders2:
+            ob.parse_order(order)
+            print(ob.output_log)
+    
+        pprint(ob.transcation_log[9:])
+        print(ob.output_log[9:])
+        expected_output = [0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0,
+                           'B: 200@11#OGxb 170@11#9zS1 480@11#2va9 ', 'S: 320@15#uH6w']
+>       assert ob.output_log == expected_output
+E       AssertionError: assert [0,\n 0,\n 0,\n 0,\n 1800,\n 4900,\n 0,\n 2350,\n 0,\n 0,\n 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb',\n 'S: 320@15#uH6w'] == [0,\n 0,\n 0,\n 0,\n 1800,\n 4900,\n 0,\n 2350,\n 0,\n 0,\n 'B: 200@11#OGxb 170@11#9zS1 480@11#2va9 ',\n 'S: 320@15#uH6w']
+E         At index 10 diff: 'B: 480@11#2va9 170@11#9zS1 200@11#OGxb' != 'B: 200@11#OGxb 170@11#9zS1 480@11#2va9 '
+E         Full diff:
+E           [
+E            0,
+E            0,
+E            0,
+E            0,
+E            1800,
+E            4900,
+E            0,
+E            2350,
+E            0,
+E            0,
+E         -  'B: 200@11#OGxb 170@11#9zS1 480@11#2va9 ',
+E         +  'B: 480@11#2va9 170@11#9zS1 200@11#OGxb',
+E            'S: 320@15#uH6w',
+E           ]
+
+test_orderbook.py:77: AssertionError
+=========================== short test summary info ============================
+FAILED test_orderbook.py::test_order_book_2 - AssertionError: assert [0,\n 0,...
+======================= 1 failed, 2 deselected in 1.43s ========================

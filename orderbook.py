@@ -148,8 +148,8 @@ class OrderBook:
         If the FOK Order cannot be executed fully, it will not be executed at
         all - that is, the OB will remain exactly the same.
         """
+        traded_value = 0
         quantity_to_trade = quantity
-        # Problem : doesnt keep iterating until we finish the price?
         if side == 'B':
             # get all the orders that are equal to or less than the price
             orders_avaliable = self.asks.get_orders(max_price=price)
@@ -157,8 +157,13 @@ class OrderBook:
             if orders_qty >= quantity:
                 for order in orders_avaliable:
                     if quantity_to_trade > 0:
-                        quantity_to_trade = self.process_order(
+                        pre_trade_quantity = quantity_to_trade
+                        quantity_to_trade, traded_price = self.process_order(
                             quantity_to_trade, order)
+                        traded_value += traded_price * \
+                            (pre_trade_quantity - quantity_to_trade)
+                self.output_log.append(traded_value)
+
             else:
                 self.output_log.append(0)
 
@@ -174,8 +179,13 @@ class OrderBook:
             if orders_qty >= quantity:
                 for order in orders_avaliable:
                     if quantity_to_trade > 0:
-                        quantity_to_trade = self.process_order(
+                        pre_trade_quantity = quantity_to_trade
+                        quantity_to_trade, traded_price = self.process_order(
                             quantity_to_trade, order)
+                        traded_value += traded_price * \
+                            (pre_trade_quantity - quantity_to_trade)
+                self.output_log.append(traded_value)
+
             else:
                 self.output_log.append(0)
 
@@ -183,7 +193,6 @@ class OrderBook:
 
     def process_order(self, quantity_to_trade, target_order_obj):
         """ Processes the order by finding the best price and quantity to trade. """
-        initial_quantity = quantity_to_trade
         traded_price = target_order_obj.price
 
         if quantity_to_trade > target_order_obj.quantity:
@@ -197,15 +206,11 @@ class OrderBook:
 
         elif quantity_to_trade < target_order_obj.quantity:
             target_order_obj.quantity -= quantity_to_trade
-            quantity_to_trade = 0  # need to remove the order from the list
-
-        # self.store_cost_output(
-        #     initial_quantity, quantity_to_trade, target_order_obj.price)
+            quantity_to_trade = 0
 
         return quantity_to_trade, traded_price
 
     def cancel_order(self, order_id):
-        # find the order id in both bid and ask, and remove it from the list
         if order_id in self.bids.order_map:
             order = self.bids.order_map.get(order_id)
             self.bids.remove_order(order)
@@ -229,7 +234,6 @@ class OrderBook:
             self.asks.update_order(order_id, new_quantity, new_price)
 
     def store_cost_output(self, initial_quantity, final_quantity, price):
-        print("storing cost output", (initial_quantity - final_quantity) * price)
         self.output_log.append((initial_quantity - final_quantity) * price)
 
     def get_output(self) -> str:
