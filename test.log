@@ -2,9 +2,9 @@
 platform linux -- Python 3.8.5, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /mnt/c/Users/Yk/Documents/Code/alphalabs/env/bin/python
 cachedir: .pytest_cache
 rootdir: /mnt/c/Users/Yk/Documents/Code/alphalabs
-collecting ... collected 9 items / 5 deselected / 4 selected
+collecting ... collected 1 item
 
-test_orderbook.py::test_order_book_market_limit Inserting Order into Bid List
+test_orderbook.py::test_order_book_1 Inserting Order into Bid List
 Submitting B Order: 200@13#Ffuj
 B ORDER IDS:  ['Ffuj']
 Inserting Order into Bid List
@@ -30,74 +30,50 @@ Not Side B Priority Order ID :  y93N
 Initial :  250
 Target Order :  y93N
 After Processing :  60
-PASSED
-test_orderbook.py::test_order_book_limit_order Inserting Order into Bid List
-Submitting B Order: 300@9#Y5wb
-B ORDER IDS:  ['Y5wb']
-Inserting Order into Bid List
-Submitting B Order: 450@7#IpD8
-B ORDER IDS:  ['Y5wb', 'IpD8']
-Inserting Order into Ask List
-Submitting S Order: 280@10#IpD9
-S ORDER IDS:  ['IpD9']
-Inserting Order into Ask List
-Submitting S Order: 200@12#IpD10
-S ORDER IDS:  ['IpD9', 'IpD10']
-Inserting Order into Ask List
-Submitting S Order: 250@14#IpD11
-S ORDER IDS:  ['IpD9', 'IpD10', 'IpD11']
-Initial :  500
-Target Order :  IpD9
-After Processing :  220
-Initial :  220
-Target Order :  IpD10
-After Processing :  20
-Inserting Order into Bid List
-Submitting B Order: 20@12#I8LO
-B ORDER IDS:  ['Y5wb', 'IpD8', 'I8LO']
-PASSED
-test_orderbook.py::test_order_book_market_order Inserting Order into Bid List
-Submitting B Order: 300@9#Y5wb
-B ORDER IDS:  ['Y5wb']
-Inserting Order into Bid List
-Submitting B Order: 450@7#IpD8
-B ORDER IDS:  ['Y5wb', 'IpD8']
-Inserting Order into Ask List
-Submitting S Order: 250@14#IpD9
-S ORDER IDS:  ['IpD9']
-Inserting Order into Ask List
-Submitting S Order: 290@16#IpD10
-S ORDER IDS:  ['IpD9', 'IpD10']
-Processing Market Order
-Not Side S Priority Order ID :  Y5wb
-Initial :  400
-Target Order :  Y5wb
-After Processing :  100
-Not Side S Priority Order ID :  IpD8
-Initial :  100
-Target Order :  IpD8
-After Processing :  0
-PASSED
-test_orderbook.py::test_order_book_ioc_order Inserting Order into Bid List
-Submitting B Order: 300@9#Y5wb
-B ORDER IDS:  ['Y5wb']
-Inserting Order into Bid List
-Submitting B Order: 450@7#IpD8
-B ORDER IDS:  ['Y5wb', 'IpD8']
-Inserting Order into Ask List
-Submitting S Order: 250@10#IpD9
-S ORDER IDS:  ['IpD9']
-Inserting Order into Ask List
-Submitting S Order: 290@12#IpD10
-S ORDER IDS:  ['IpD9', 'IpD10']
-Initial :  400
-Target Order :  Y5wb
-After Processing :  100
-["B : ['300@9#Y5wb'], S : []",
- "B : ['300@9#Y5wb', '450@7#IpD8'], S : []",
- "B : ['300@9#Y5wb', '450@7#IpD8'], S : ['250@10#IpD9']",
- "B : ['300@9#Y5wb', '450@7#IpD8'], S : ['250@10#IpD9', '290@12#IpD10']",
- "B : ['450@7#IpD8'], S : ['250@10#IpD9', '290@12#IpD10']"]
-PASSED
+2100
+2850
+B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P 
+S: 
+FAILED
 
-======================= 4 passed, 5 deselected in 0.23s ========================
+=================================== FAILURES ===================================
+______________________________ test_order_book_1 _______________________________
+
+orders = ['SUB LO B Ffuj 200 13', 'SUB LO B Yy7P 150 11', 'SUB LO B YuFU 100 13', 'SUB LO S IpD8 150 14', 'SUB LO S y93N 190 15', 'SUB LO B Y5wb 230 14', ...]
+
+    def test_order_book_1(orders):
+        ob = OrderBook()
+        for order in orders:
+            ob.parse_order(order)
+        expected_output = ['0', '0', '0', '0', '0', '2100',
+                           '2850', 'B: 80@14#Y5wb 100013#YuFU 150@11#Yy7P', 'S:']
+>       assert ob.output_log == expected_output
+E       AssertionError: assert [2100, 2850, 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P ', 'S: '] == ['0',\n '0',\n '0',\n '0',\n '0',\n '2100',\n '2850',\n 'B: 80@14#Y5wb 100013#YuFU 150@11#Yy7P',\n 'S:']
+E         At index 0 diff: 2100 != '0'
+E         Right contains 5 more items, first extra item: '0'
+E         Full diff:
+E           [
+E         -  '0',
+E         -  '0',
+E         -  '0',
+E         -  '0',
+E         -  '0',
+E         -  '2100',
+E         ?  -    -
+E         +  2100,
+E         -  '2850',
+E         ?  -    -
+E         +  2850,
+E         -  'B: 80@14#Y5wb 100013#YuFU 150@11#Yy7P',
+E         ?                    ^
+E         +  'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P ',
+E         ?                    ^                   +
+E         -  'S:',
+E         +  'S: ',
+E         ?     +
+E           ]
+
+test_orderbook.py:63: AssertionError
+=========================== short test summary info ============================
+FAILED test_orderbook.py::test_order_book_1 - AssertionError: assert [2100, 2...
+============================== 1 failed in 1.98s ===============================

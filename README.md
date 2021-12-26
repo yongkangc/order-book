@@ -2,18 +2,7 @@
 
 Approach to the problem:
 
-Binary tree is used as datastructure for holding the list of orders for bid and ask. This will be called OrderTree.
-The reason why binary tree is used is because it allows us to detect a match faster.
-
-With this structure you can easily implement these key operations with good performance:
-
-Add – O(log M) for the first order at a limit, O(1) for all others
-Cancel – O(1)
-Execute – O(1)
-GetVolumeAtLimit – O(1)
-GetBestBid/Offer – O(1)
-
-Each order list is implemented
+Price Node -> Price List (Doubly Linked List) -> Order -> Order List -> Order Book
 
 Practices used :
 
@@ -21,7 +10,10 @@ Practices used :
 
 ### Testing
 
+Test Everything : ` pytest -vv | tee test.log`
+
 `pytest -k'test_order_book' -vv -s | tee test.log`
+
 `pytest -k'test_order_book_market' -vv -s | tee test.log`
 
 ### References

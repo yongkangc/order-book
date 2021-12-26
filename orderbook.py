@@ -3,10 +3,10 @@ from collections import defaultdict, deque  # a faster insert/pop queue
 
 class OrderBook:
     def __init__(self):
-        self.trades = deque()
         self.bids = OrderList("B")
         self.asks = OrderList("S")
-        self.transcation_log = []
+        self.transcation_log = []  # for checking each transcation
+        self.output_log = []
 
     def parse_order(self, order: str):
         """
@@ -34,17 +34,27 @@ class OrderBook:
                 self.process_market_order(side, quantity)
             elif order_type == 'IOC':
                 price = int(order_command[5])
-                self.process_ioc_order(side, order_id, quantity, price)
+                self.process_ioc_order(side, quantity, price)
+            elif order_type == "FOK":
+                price = int(order_command[5])
+                self.process_fok_order(side, quantity, price)
 
-        elif action == 'CXL':  # cancel order
+        elif action == 'CXL':
             order_id = order_command[1]
             self.cancel_order(order_id)
 
-        elif action == "END":
-            if len(self.transcation_log) > 0:
-                return self.transcation_log[-1]
+        elif action == 'CRP':
+            order_id, new_quantity, new_price = order_command[1], int(
+                order_command[2]), int(order_command[3])
+            self.cancel_replace_order(order_id, new_quantity, new_price)
 
-        self.transcation_log.appen̥̥̥̥d(f"{str(self.bids)}, {str(self.asks)}")
+        elif action == "END":
+            self.output_log.append(str(self.bids))
+            self.output_log.append(str(self.asks))
+            self.get_output()
+            return
+
+        self.transcation_log.append(f"{str(self.bids)}, {str(self.asks)}")
 
     def process_limit_order(self, side, order_id, quantity, price):
         # add to txn log
@@ -73,7 +83,6 @@ class OrderBook:
                 print("Inserting Order into Ask List")
                 self.asks.insert_order(
                     side, order_id, quantity_to_trade, price)
-    # prob here
 
     def process_market_order(self, side, quantity):
         print("Processing Market Order")
@@ -101,7 +110,7 @@ class OrderBook:
             if quantity_to_trade > 0:
                 return
 
-    def process_ioc_order(self, side, order_id, quantity, price):
+    def process_ioc_order(self, side, quantity, price):
         """
         An IOC Order is similar to a Limit Order, except if the IOC Order is not executed fully, 
         the remaining quantity will be cancelled, instead of being added to the OB. 
@@ -126,10 +135,33 @@ class OrderBook:
             if quantity_to_trade > 0:
                 return
 
+    def process_fok_order(self, side, quantity, price):
+        """
+        An FOK Order is similar to a Limit Order, except the FOK Order
+        will be executed if and only if it can be executed fully. 
+        If the FOK Order cannot be executed fully, it will not be executed at
+        all - that is, the OB will remain exactly the same.
+        """
+        # Problem : doesnt keep iterating until we finish the price?
+        if side == 'B':
+            if quantity > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
+                best_ask_price_order = self.asks.get_min_price_order()
+                if quantity <= best_ask_price_order.quantity:
+                    self.process_order(quantity, best_ask_price_order)
+            return
+
+        elif side == 'S':
+            if quantity > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
+                best_bid_price_order = self.bids.get_max_price_order()
+                if quantity <= best_bid_price_order.quantity:
+                    self.process_order(quantity, best_bid_price_order)
+            return
+
     def process_order(self, quantity_to_trade, target_order_obj):
         """ Processes the order by finding the best price and quantity to trade. """
         print("Initial : ", quantity_to_trade)
         print("Target Order : ", target_order_obj.order_id)
+        initial_quantity = quantity_to_trade
         if quantity_to_trade > 0:
             if quantity_to_trade > target_order_obj.quantity:
                 quantity_to_trade -= target_order_obj.quantity
@@ -141,10 +173,13 @@ class OrderBook:
 
             elif quantity_to_trade < target_order_obj.quantity:
                 target_order_obj.quantity -= quantity_to_trade
-                quantity_to_trade = 0
-                # need to remove the order from the list
+                quantity_to_trade = 0  # need to remove the order from the list
 
         print("After Processing : ", quantity_to_trade)
+        processed_quantity = initial_quantity - quantity_to_trade
+        total_cost = processed_quantity * target_order_obj.price
+        self.output_log.append(total_cost)
+
         return quantity_to_trade
 
     def cancel_order(self, order_id):
@@ -155,6 +190,25 @@ class OrderBook:
         elif order_id in self.asks.order_map:
             order = self.asks.order_map.get(order_id)
             self.asks.remove_order(order)
+
+    def cancel_replace_order(self, order_id, new_quantity, new_price):
+        """
+        Cancels and replaces a Limit Order in the OB with a new Price and Quantity, keeping the order ID the same. 
+        Effectively serves as an update to the Quantity and/or Price of a Limit Order within the OB.
+
+        The updated order will be treated as a newly-inserted order, which means it will be given lower priority 
+        compared to other existing orders of the same Price. The only exception to this rule is when the 
+        Price remains the same and the Quantity decreases (or also remains the same), in which case, the order's priority will remain the same.
+        """
+        if order_id in self.bids.order_map:
+            self.bids.update_order(order_id, new_quantity, new_price)
+
+        elif order_id in self.asks.order_map:
+            self.asks.update_order(order_id, new_quantity, new_price)
+
+    def get_output(self) -> str:
+        for output in self.output_log:
+            print(output)
 
 
 class OrderList:
@@ -204,16 +258,21 @@ class OrderList:
         self.num_orders += 1
         print(f"{side} ORDER IDS:  {self.order_ids}")
 
-    def update_order(self, order_id, update_quantity):
-        """Update the order to given commands"""
+    def update_order(self, order_id, new_quantity, new_price):
+
         order = self.order_map.get(order_id)
-        if order != None:
-            order.quantity += update_quantity
-            if order.quantity == 0:
-                self.remove_order_by_id(order_id)
-                return 0
-            elif order.quantity < 0:
-                pass
+        if order is None:
+            return
+
+        # if price and quantity of new order and existing order is the same, just update the quantitiy of the order without change
+        if order.price == new_price and new_quantity <= order.quantity:
+            order.quantity = new_quantity
+            return
+
+        # else we need to remove the order and add the new order with the same order id
+        order_side = order.side
+        self.remove_order(order)
+        self.insert_order(order_side, order_id, new_quantity, new_price)
 
     def remove_order(self, order):
         self.remove_order_by_id(order.order_id)
@@ -267,9 +326,16 @@ class OrderList:
     def __str__(self) -> str:
         """Returns string representation of the order list sorted by price"""
         if self.side == 'B':
-            return f"{self.side} : {[str(order) for order in self.get_orders()][::-1]}"
+            order_list = [str(order) for order in self.get_orders()][::-1]
+
         elif self.side == 'S':
-            return f"{self.side} : {[str(order) for order in self.get_orders()]}"
+            order_list = [str(order) for order in self.get_orders()]
+
+        order_str = ''
+        for order in order_list:
+            order_str += ' ' + order
+
+        return f"{self.side}:{order_str}"
 
 
 class Order:
