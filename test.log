@@ -14,9 +14,9 @@ Submitting S Order: 150@14#IpD8
 S ORDER IDS:  ['IpD8']
 Submitting S Order: 190@15#y93N
 S ORDER IDS:  ['IpD8', 'y93N']
-storing cost output 2100
 Submitting B Order: 80@14#Y5wb
 B ORDER IDS:  ['Ffuj', 'Yy7P', 'YuFU', 'Y5wb']
+storing cost output 2100
 storing cost output 2850
 0
 0
@@ -30,4 +30,4 @@ S:
 [0, 0, 0, 0, 0, 2100, 2850, 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P', 'S:']
 PASSED
 
-======================= 1 passed, 2 deselected in 0.18s ========================
+======================= 1 passed, 2 deselected in 0.24s ========================

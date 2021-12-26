@@ -62,10 +62,13 @@ class OrderBook:
         if side == 'B':
             if self.asks.num_orders <= 0 or price < self.asks.min_price():
                 self.output_log.append(0)
+                self.bids.insert_order(
+                    side, order_id, quantity_to_trade, price)
+                return
 
             while quantity_to_trade > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
                 best_ask_price_order = self.asks.get_min_price_order()
-                quantity_to_trade = self.process_order(
+                quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, best_ask_price_order)
 
             if quantity_to_trade > 0:
@@ -75,38 +78,39 @@ class OrderBook:
         elif side == 'S':
             if self.bids.num_orders <= 0 or price > self.bids.max_price():
                 self.output_log.append(0)
+                self.asks.insert_order(
+                    side, order_id, quantity_to_trade, price)
+                return
 
             while quantity_to_trade > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
                 best_bid_price_order = self.bids.get_max_price_order()
-                quantity_to_trade = self.process_order(
+                quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, best_bid_price_order)
 
             if quantity_to_trade > 0:
                 self.asks.insert_order(
                     side, order_id, quantity_to_trade, price)
 
-        # self.store_cost_output(quantity, quantity_to_trade, price)
+        self.store_cost_output(quantity, quantity_to_trade, traded_price)
 
     def process_market_order(self, side, quantity):
         quantity_to_trade = quantity
+
         if side == 'B':
             while quantity_to_trade > 0 and self.asks.num_orders > 0:
                 priority_order_id = self.asks.order_ids[0]
-
                 priority_order = self.asks.order_map.get(priority_order_id)
-                quantity_to_trade = self.process_order(
+                quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, priority_order)
-            if quantity_to_trade > 0:
-                return  # cancel order when market order is not filled
 
         elif side == 'S':
             while quantity_to_trade > 0 and self.bids.num_orders > 0:
                 priority_order_id = self.bids.order_ids[0]
                 priority_order = self.bids.order_map.get(priority_order_id)
-                quantity_to_trade = self.process_order(
+                quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, priority_order)
-            if quantity_to_trade > 0:
-                return
+
+        self.store_cost_output(quantity, quantity_to_trade, traded_price)
 
     def process_ioc_order(self, side, quantity, price):
         """
@@ -180,6 +184,7 @@ class OrderBook:
     def process_order(self, quantity_to_trade, target_order_obj):
         """ Processes the order by finding the best price and quantity to trade. """
         initial_quantity = quantity_to_trade
+        traded_price = target_order_obj.price
 
         if quantity_to_trade > target_order_obj.quantity:
             quantity_to_trade -= target_order_obj.quantity
@@ -194,10 +199,10 @@ class OrderBook:
             target_order_obj.quantity -= quantity_to_trade
             quantity_to_trade = 0  # need to remove the order from the list
 
-        self.store_cost_output(
-            initial_quantity, quantity_to_trade, target_order_obj.price)
+        # self.store_cost_output(
+        #     initial_quantity, quantity_to_trade, target_order_obj.price)
 
-        return quantity_to_trade
+        return quantity_to_trade, traded_price
 
     def cancel_order(self, order_id):
         # find the order id in both bid and ask, and remove it from the list
