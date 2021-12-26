@@ -1,4 +1,5 @@
 from collections import defaultdict, deque  # a faster insert/pop queue
+import math
 
 
 class OrderBook:
@@ -116,8 +117,8 @@ class OrderBook:
 
     def process_ioc_order(self, side, quantity, price):
         """
-        An IOC Order is similar to a Limit Order, except if the IOC Order is not executed fully, 
-        the remaining quantity will be cancelled, instead of being added to the OB. 
+        An IOC Order is similar to a Limit Order, except if the IOC Order is not executed fully,
+        the remaining quantity will be cancelled, instead of being added to the OB.
         Like the Limit Order, an IOC Order consists of a Side, a Quantity and a Price.
         """
         quantity_to_trade = quantity
@@ -146,44 +147,63 @@ class OrderBook:
     def process_fok_order(self, side, quantity, price):
         """
         An FOK Order is similar to a Limit Order, except the FOK Order
-        will be executed if and only if it can be executed fully. 
+        will be executed if and only if it can be executed fully.
         If the FOK Order cannot be executed fully, it will not be executed at
         all - that is, the OB will remain exactly the same.
         """
+        quantity_to_trade = quantity
         # Problem : doesnt keep iterating until we finish the price?
         if side == 'B':
-            if quantity > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
-                best_ask_price_order = self.asks.get_min_price_order()
-                if quantity <= best_ask_price_order.quantity:
-                    self.process_order(quantity, best_ask_price_order)
+            # get all the orders that are equal to or less than the price
+            orders_avaliable = self.asks.get_orders(max_price=price)
+            orders_qty = self.asks.get_order_quantity(orders_avaliable)
+            if orders_qty >= quantity:
+                for order in orders_avaliable:
+                    if quantity_to_trade > 0:
+                        quantity_to_trade = self.process_order(
+                            quantity_to_trade, order)
+            else:
+                self.output_log.append(0)
+
             return
 
         elif side == 'S':
-            if quantity > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
-                best_bid_price_order = self.bids.get_max_price_order()
-                if quantity <= best_bid_price_order.quantity:
-                    self.process_order(quantity, best_bid_price_order)
+            # get all the orders that are equal to or greater than the price
+            orders_avaliable = self.bids.get_orders_by_price(min_price=price)
+            order_ids = [order.order_id for order in orders_avaliable]
+            print(f"Order IDs FOK: {order_ids}")
+            orders_qty = self.bids.get_order_quantity(orders_avaliable)
+            print("Orders qty avaliable for FOK: ", orders_qty)
+            if orders_qty >= quantity:
+                for order in orders_avaliable:
+                    if quantity_to_trade > 0:
+                        quantity_to_trade = self.process_order(
+                            quantity_to_trade, order)
+            else:
+                self.output_log.append(0)
+
             return
 
     def process_order(self, quantity_to_trade, target_order_obj):
         """ Processes the order by finding the best price and quantity to trade. """
-        print("Initial : ", quantity_to_trade)
-        print("Target Order : ", target_order_obj.order_id)
+        print("Initial quantity to fill : ", quantity_to_trade)
+        print("Target Order to fill : ", target_order_obj.order_id)
         initial_quantity = quantity_to_trade
-        if quantity_to_trade > 0:
-            if quantity_to_trade > target_order_obj.quantity:
-                quantity_to_trade -= target_order_obj.quantity
-                target_order_obj.quantity = 0
-                if target_order_obj.side == "B":
-                    self.bids.remove_order(target_order_obj)
-                elif target_order_obj.side == "S":
-                    self.asks.remove_order(target_order_obj)
 
-            elif quantity_to_trade < target_order_obj.quantity:
-                target_order_obj.quantity -= quantity_to_trade
-                quantity_to_trade = 0  # need to remove the order from the list
+        if quantity_to_trade > target_order_obj.quantity:
+            quantity_to_trade -= target_order_obj.quantity
+            target_order_obj.quantity = 0
 
-        print("After Processing : ", quantity_to_trade)
+            if target_order_obj.side == "B":
+                self.bids.remove_order(target_order_obj)
+            elif target_order_obj.side == "S":
+                self.asks.remove_order(target_order_obj)
+
+        elif quantity_to_trade < target_order_obj.quantity:
+            target_order_obj.quantity -= quantity_to_trade
+            quantity_to_trade = 0  # need to remove the order from the list
+
+        print("After Processing, Qty to fill: ", quantity_to_trade)
         processed_quantity = initial_quantity - quantity_to_trade
         total_cost = processed_quantity * target_order_obj.price
         self.output_log.append(total_cost)
@@ -201,11 +221,11 @@ class OrderBook:
 
     def cancel_replace_order(self, order_id, new_quantity, new_price):
         """
-        Cancels and replaces a Limit Order in the OB with a new Price and Quantity, keeping the order ID the same. 
+        Cancels and replaces a Limit Order in the OB with a new Price and Quantity, keeping the order ID the same.
         Effectively serves as an update to the Quantity and/or Price of a Limit Order within the OB.
 
-        The updated order will be treated as a newly-inserted order, which means it will be given lower priority 
-        compared to other existing orders of the same Price. The only exception to this rule is when the 
+        The updated order will be treated as a newly-inserted order, which means it will be given lower priority
+        compared to other existing orders of the same Price. The only exception to this rule is when the
         Price remains the same and the Quantity decreases (or also remains the same), in which case, the order's priority will remain the same.
         """
         if order_id in self.bids.order_map:
@@ -310,10 +330,11 @@ class OrderList:
             else:
                 self.price_map[order_price] = price_list
 
-    def get_orders(self):
+    def get_orders(self, min_price=0, max_price=math.inf):
         """Get order by price"""
         orders = []
-        price_list = self.prices.get_prices()  # get all prices
+        price_list = self.get_price_list(
+            min_price, max_price)  # get all prices
 
         for idx, price in enumerate(price_list):
             # check for duplicates of price in list
@@ -323,6 +344,36 @@ class OrderList:
             for order in self.price_map[price]:
                 orders.append(order)
         return orders
+
+    def get_orders_by_price(self, min_price=0, max_price=math.inf):
+        """Get order of different prices sorted by oder priority"""
+        orders = []
+        orders_price_id = []
+        price_list = self.get_price_list(
+            min_price, max_price)
+
+        for price in price_list:
+            orders_price_id.extend(
+                [order.order_id for order in self.price_map[price]])
+
+        for id in self.order_ids:
+            if id in orders_price_id:
+                orders.append(self.order_map[id])
+        return orders
+
+    def get_order_quantity(self, order_list):
+        """Get the quantity of orders in order list"""
+        if len(order_list) == 0:
+            return 0
+        return sum([order.quantity for order in order_list])
+
+    def get_price_list(self, min_price=0, max_price=math.inf):
+        """Get price list between min and max price"""
+        price_list = []
+        for price in self.prices.get_prices():
+            if price >= min_price and price <= max_price:
+                price_list.append(price)
+        return price_list
 
     def get_orders_by_id(self):
         """Get order by id priority"""
