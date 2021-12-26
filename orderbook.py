@@ -122,24 +122,24 @@ class OrderBook:
         if side == 'B':
             if self.asks.num_orders <= 0 or price < self.asks.min_price():
                 self.output_log.append(0)
+                return
+
             while quantity_to_trade > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
                 best_ask_price_order = self.asks.get_min_price_order()
-                quantity_to_trade = self.process_order(
+                quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, best_ask_price_order)
-
-            if quantity_to_trade > 0:
-                return  # end order when order is not filled
 
         elif side == 'S':
             if self.bids.num_orders <= 0 or price > self.bids.max_price():
                 self.output_log.append(0)
+                return
+
             while quantity_to_trade > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
                 best_bid_price_order = self.bids.get_max_price_order()
-                quantity_to_trade = self.process_order(
+                quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, best_bid_price_order)
 
-            if quantity_to_trade > 0:
-                return
+        self.store_cost_output(quantity, quantity_to_trade, traded_price)
 
     def process_fok_order(self, side, quantity, price):
         """
