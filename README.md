@@ -21,7 +21,10 @@ Practices used :
 
 ### Testing
 
+Test Everything : ` pytest -vv | tee test.log`
+
 `pytest -k'test_order_book' -vv -s | tee test.log`
+
 `pytest -k'test_order_book_market' -vv -s | tee test.log`
 
 ### References
