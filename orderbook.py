@@ -151,7 +151,6 @@ class OrderBook:
         traded_value = 0
         quantity_to_trade = quantity
         if side == 'B':
-            # get all the orders that are equal to or less than the price
             orders_avaliable = self.asks.get_orders(max_price=price)
             orders_qty = self.asks.get_order_quantity(orders_avaliable)
             if orders_qty >= quantity:
@@ -170,12 +169,8 @@ class OrderBook:
             return
 
         elif side == 'S':
-            # get all the orders that are equal to or greater than the price
-            orders_avaliable = self.bids.get_orders_by_price(min_price=price)
-            order_ids = [order.order_id for order in orders_avaliable]
-            print(f"Order IDs FOK: {order_ids}")
+            orders_avaliable = self.bids.get_orders(min_price=price)
             orders_qty = self.bids.get_order_quantity(orders_avaliable)
-            print("Orders qty avaliable for FOK: ", orders_qty)
             if orders_qty >= quantity:
                 for order in orders_avaliable:
                     if quantity_to_trade > 0:
@@ -298,10 +293,12 @@ class OrderList:
         if order.price == new_price and new_quantity <= order.quantity:
             order.quantity = new_quantity
             return
-
         # else we need to remove the order and add the new order with the same order id
         order_side = order.side
+        print(self.order_ids, 1)
         self.remove_order(order)
+        print(self.order_ids, 2)
+
         self.insert_order(order_side, order_id, new_quantity, new_price)
 
     def remove_order(self, order):
@@ -310,7 +307,6 @@ class OrderList:
 
     def remove_order_by_id(self, order_id):
         order = self.order_map.get(order_id)
-        # print(self.order_ids)
         self.order_ids.remove(order_id)
         if order != None:
             self.num_orders -= 1
@@ -332,32 +328,24 @@ class OrderList:
             else:
                 self.price_map[order_price] = price_list
 
-    def get_orders(self, min_price=0, max_price=math.inf):
-        """Get order by price"""
+    def get_orders(self, min_price=0, max_price=math.inf, side=None):
+        """Get order of different prices sorted by order priority"""
         orders = []
-        price_list = self.get_price_list(
-            min_price, max_price)  # get all prices
+        orders_price_id = []
+        if side == "B":
+            price_list = self.get_price_list(
+                min_price, max_price)[::-1]
+        else:
+            price_list = self.get_price_list(
+                min_price, max_price)
 
         for idx, price in enumerate(price_list):
             # check for duplicates of price in list
             if idx > 0 and price == price_list[idx-1]:
                 continue
-            # get the list of orders at that price
-            for order in self.price_map[price]:
-                orders.append(order)
-        return orders
 
-    def get_orders_by_price(self, min_price=0, max_price=math.inf):
-        """Get order of different prices sorted by oder priority"""
-        orders = []
-        orders_price_id = []
-        price_list = self.get_price_list(
-            min_price, max_price)
-
-        for price in price_list:
             orders_price_id.extend(
                 [order.order_id for order in self.price_map[price]])
-
         for id in self.order_ids:
             if id in orders_price_id:
                 orders.append(self.order_map[id])
@@ -386,11 +374,9 @@ class OrderList:
 
     def __str__(self) -> str:
         """Returns string representation of the order list sorted by price"""
-        if self.side == 'B':
-            order_list = [str(order) for order in self.get_orders()][::-1]
 
-        elif self.side == 'S':
-            order_list = [str(order) for order in self.get_orders()]
+        order_list = [str(order)
+                      for order in self.get_orders(side=self.side)]
 
         order_str = ''
         for order in order_list:
