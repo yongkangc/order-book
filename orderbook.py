@@ -71,7 +71,6 @@ class OrderBook:
             # when there is no more ask order, or the price is less than the ask order,
             # add the order to the bid list
             if quantity_to_trade > 0:
-                print("Inserting Order into Bid List")
                 self.bids.insert_order(
                     side, order_id, quantity_to_trade, price)
 
@@ -82,21 +81,16 @@ class OrderBook:
                 best_bid_price_order = self.bids.get_max_price_order()
                 quantity_to_trade = self.process_order(
                     quantity_to_trade, best_bid_price_order)
-            # when there is no more bid order, or the price is greater than the bid order,
-            # add the order to the ask list
+
             if quantity_to_trade > 0:
-                print("Inserting Order into Ask List")
                 self.asks.insert_order(
                     side, order_id, quantity_to_trade, price)
 
     def process_market_order(self, side, quantity):
-        print("Processing Market Order")
         quantity_to_trade = quantity
         if side == 'B':
             while quantity_to_trade > 0 and self.asks.num_orders > 0:
                 priority_order_id = self.asks.order_ids[0]
-                print(f"Not Side {side} Priority Order ID : ",
-                      priority_order_id)
 
                 priority_order = self.asks.order_map.get(priority_order_id)
                 quantity_to_trade = self.process_order(
@@ -107,8 +101,6 @@ class OrderBook:
         elif side == 'S':
             while quantity_to_trade > 0 and self.bids.num_orders > 0:
                 priority_order_id = self.bids.order_ids[0]
-                print(f"Not Side {side} Priority Order ID : ",
-                      priority_order_id)
                 priority_order = self.bids.order_map.get(priority_order_id)
                 quantity_to_trade = self.process_order(
                     quantity_to_trade, priority_order)
@@ -233,6 +225,9 @@ class OrderBook:
 
         elif order_id in self.asks.order_map:
             self.asks.update_order(order_id, new_quantity, new_price)
+
+    def store_cost_output(self, initial_quantity, final_quantity, price):
+        self.output_log.append((initial_quantity - final_quantity) * price)
 
     def get_output(self) -> str:
         for output in self.output_log:
