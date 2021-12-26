@@ -1,4 +1,4 @@
-# Alpha lab Matchin Engine Challenge Part 1
+# Alpha lab Matching Engine
 
 Approach to the problem:
 
