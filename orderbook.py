@@ -60,6 +60,8 @@ class OrderBook:
         # add to txn log
         quantity_to_trade = quantity
         if side == 'B':
+            if self.asks.num_orders <= 0 or price < self.asks.min_price():
+                self.output_log.append(0)
             while quantity_to_trade > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
                 best_ask_price_order = self.asks.get_min_price_order()
                 quantity_to_trade = self.process_order(
@@ -73,6 +75,8 @@ class OrderBook:
                     side, order_id, quantity_to_trade, price)
 
         elif side == 'S':
+            if self.bids.num_orders <= 0 or price > self.bids.max_price():
+                self.output_log.append(0)
             while quantity_to_trade > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
                 best_bid_price_order = self.bids.get_max_price_order()
                 quantity_to_trade = self.process_order(
@@ -118,6 +122,8 @@ class OrderBook:
         """
         quantity_to_trade = quantity
         if side == 'B':
+            if self.asks.num_orders <= 0 or price < self.asks.min_price():
+                self.output_log.append(0)
             while quantity_to_trade > 0 and self.asks.num_orders > 0 and price >= self.asks.min_price():
                 best_ask_price_order = self.asks.get_min_price_order()
                 quantity_to_trade = self.process_order(
@@ -127,6 +133,8 @@ class OrderBook:
                 return  # end order when order is not filled
 
         elif side == 'S':
+            if self.bids.num_orders <= 0 or price > self.bids.max_price():
+                self.output_log.append(0)
             while quantity_to_trade > 0 and self.bids.num_orders > 0 and price <= self.bids.max_price():
                 best_bid_price_order = self.bids.get_max_price_order()
                 quantity_to_trade = self.process_order(
