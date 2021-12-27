@@ -2,8 +2,19 @@
 platform linux -- Python 3.8.10, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /mnt/c/Users/Yk/Documents/Code/alphalabs/env/bin/python
 cachedir: .pytest_cache
 rootdir: /mnt/c/Users/Yk/Documents/Code/alphalabs
-collecting ... collected 3 items / 2 deselected / 1 selected
+collecting ... collected 3 items
 
+test_orderbook.py::test_order_book_1 0
+0
+0
+0
+0
+2100
+2850
+B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P
+S:
+[0, 0, 0, 0, 0, 2100, 2850, 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P', 'S:']
+PASSED
 test_orderbook.py::test_order_book_2 [0]
 [0, 0]
 [0, 0, 0]
@@ -35,5 +46,9 @@ S: 320@15#uH6w
  'B: 200@11#OGxb 170@11#9zS1 480@11#2va9, S: 320@15#uH6w']
 [0, 'B: 200@11#OGxb 170@11#9zS1 480@11#2va9', 'S: 320@15#uH6w']
 PASSED
+test_orderbook.py::test_order_book_fok_order 'B: 100@9#Y5wb 450@7#IpD8, S: 250@14#IpD9 290@16#IpD10'
+'B: 100@9#Y5wb 450@7#IpD8, S: 250@14#IpD9 290@16#IpD10'
+[0, 0, 0, 0, 1800, 0]
+PASSED
 
-======================= 1 passed, 2 deselected in 0.17s ========================
+============================== 3 passed in 0.20s ===============================

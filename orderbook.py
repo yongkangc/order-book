@@ -1,11 +1,12 @@
 from collections import defaultdict, deque  # a faster insert/pop queue
+from enum import Enum
 import math
 
 
 class OrderBook:
     def __init__(self):
-        self.bids = OrderList("B")
-        self.asks = OrderList("S")
+        self.bids = OrderList(Side.BUY)
+        self.asks = OrderList(Side.SELL)
         self.transcation_log = []  # for checking each transcation
         self.output_log = []
 
@@ -25,31 +26,36 @@ class OrderBook:
         order_command = order.split()
         action = order_command[0]
 
-        if action == 'SUB':
-            order_type, side, order_id, quantity = order_command[
-                1], order_command[2], order_command[3], int(order_command[4])
-            if order_type == 'LO':
+        if action == Action.SUBMIT.value:
+            order_type, order_id, quantity = order_command[
+                1], order_command[3], int(order_command[4])
+            if order_command[2] == Side.BUY.value:
+                side = Side.BUY
+            else:
+                side = Side.SELL
+
+            if order_type == OrderType.LIMIT.value:
                 price = int(order_command[5])
                 self.process_limit_order(side, order_id, quantity, price)
-            elif order_type == 'MO':
+            elif order_type == OrderType.MARKET.value:
                 self.process_market_order(side, quantity)
-            elif order_type == 'IOC':
+            elif order_type == OrderType.IOC.value:
                 price = int(order_command[5])
                 self.process_ioc_order(side, quantity, price)
-            elif order_type == "FOK":
+            elif order_type == OrderType.FOK.value:
                 price = int(order_command[5])
                 self.process_fok_order(side, quantity, price)
 
-        elif action == 'CXL':
+        elif action == Action.CANCEL.value:
             order_id = order_command[1]
             self.cancel_order(order_id)
 
-        elif action == 'CRP':
+        elif action == Action.CRP.value:
             order_id, new_quantity, new_price = order_command[1], int(
                 order_command[2]), int(order_command[3])
             self.cancel_replace_order(order_id, new_quantity, new_price)
 
-        elif action == "END":
+        elif action == Action.END.value:
             self.output_log.append(str(self.bids))
             self.output_log.append(str(self.asks))
             self.get_output()
@@ -59,7 +65,7 @@ class OrderBook:
 
     def process_limit_order(self, side, order_id, quantity, price):
         quantity_to_trade = quantity
-        if side == 'B':
+        if side == Side.BUY:
             if self.asks.num_orders <= 0 or price < self.asks.min_price():
                 self.output_log.append(0)
                 self.bids.insert_order(
@@ -75,7 +81,7 @@ class OrderBook:
                 self.bids.insert_order(
                     side, order_id, quantity_to_trade, price)
 
-        elif side == 'S':
+        elif side == Side.SELL:
             if self.bids.num_orders <= 0 or price > self.bids.max_price():
                 self.output_log.append(0)
                 self.asks.insert_order(
@@ -96,14 +102,14 @@ class OrderBook:
     def process_market_order(self, side, quantity):
         quantity_to_trade = quantity
 
-        if side == 'B':
+        if side == Side.BUY:
             while quantity_to_trade > 0 and self.asks.num_orders > 0:
                 priority_order_id = self.asks.order_ids[0]
                 priority_order = self.asks.order_map.get(priority_order_id)
                 quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, priority_order)
 
-        elif side == 'S':
+        elif side == Side.SELL:
             while quantity_to_trade > 0 and self.bids.num_orders > 0:
                 priority_order_id = self.bids.order_ids[0]
                 priority_order = self.bids.order_map.get(priority_order_id)
@@ -117,8 +123,9 @@ class OrderBook:
         An IOC Order is similar to a Limit Order, except if the IOC Order is not executed fully,
         the remaining quantity will be cancelled, instead of being added to the OB.
         """
+        traded_price = 0
         quantity_to_trade = quantity
-        if side == 'B':
+        if side == Side.BUY:
             if self.asks.num_orders <= 0 or price < self.asks.min_price():
                 self.output_log.append(0)
                 return
@@ -128,7 +135,7 @@ class OrderBook:
                 quantity_to_trade, traded_price = self.process_order(
                     quantity_to_trade, best_ask_price_order)
 
-        elif side == 'S':
+        elif side == Side.SELL:
             if self.bids.num_orders <= 0 or price > self.bids.max_price():
                 self.output_log.append(0)
                 return
@@ -149,7 +156,7 @@ class OrderBook:
         """
         traded_value = 0
         quantity_to_trade = quantity
-        if side == 'B':
+        if side == Side.BUY:
             orders_avaliable = self.asks.get_orders(max_price=price)
             orders_qty = self.asks.get_order_quantity(orders_avaliable)
             if orders_qty >= quantity:
@@ -167,8 +174,9 @@ class OrderBook:
 
             return
 
-        elif side == 'S':
-            orders_avaliable = self.bids.get_orders(min_price=price, side='B')
+        elif side == Side.SELL:
+            orders_avaliable = self.bids.get_orders(
+                min_price=price, side=Side.BUY)
             orders_qty = self.bids.get_order_quantity(orders_avaliable)
             if orders_qty >= quantity:
                 for order in orders_avaliable:
@@ -193,9 +201,9 @@ class OrderBook:
             quantity_to_trade -= target_order_obj.quantity
             target_order_obj.quantity = 0
 
-            if target_order_obj.side == "B":
+            if target_order_obj.side == Side.BUY:
                 self.bids.remove_order(target_order_obj)
-            elif target_order_obj.side == "S":
+            elif target_order_obj.side == Side.SELL:
                 self.asks.remove_order(target_order_obj)
 
         elif quantity_to_trade < target_order_obj.quantity:
@@ -325,8 +333,7 @@ class OrderList:
     def get_orders(self, min_price=0, max_price=math.inf, side=None):
         """Get order of different prices sorted by order priority"""
         orders = []
-        orders_price_id = []
-        if side == "B":
+        if side == Side.BUY:
             price_list = self.get_price_list(
                 min_price, max_price)[::-1]
         else:
@@ -374,7 +381,7 @@ class OrderList:
         for order in order_list:
             order_str += ' ' + order
 
-        return f"{self.side}:{order_str}"
+        return f"{self.side.value}:{order_str}"
 
 
 class Order:
@@ -412,7 +419,7 @@ class Order:
 
     @ side.setter
     def side(self, side) -> None:
-        if side == 'B' or side == 'S':
+        if side == Side.BUY or side == Side.SELL:
             self._side = side
         else:
             raise ValueError('Invalid side')
@@ -523,3 +530,25 @@ class PriceNode:
 
     def __str__(self) -> str:
         return f'{self.price}'
+
+
+class Side(Enum):
+    """Enum for side of the order"""
+    BUY = 'B'
+    SELL = 'S'
+
+
+class Action(Enum):
+    """Enum for action of the order"""
+    SUBMIT = 'SUB'
+    CANCEL = 'CXL'
+    CRP = 'CRP'
+    END = 'END'
+
+
+class OrderType(Enum):
+    """Enum for order type"""
+    MARKET = 'MO'
+    LIMIT = 'LO'
+    IOC = 'IOC'
+    FOK = 'FOK'
