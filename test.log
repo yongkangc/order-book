@@ -1,58 +1,20 @@
 ============================= test session starts ==============================
-platform linux -- Python 3.8.5, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /mnt/c/Users/Yk/Documents/Code/alphalabs/env/bin/python
+platform linux -- Python 3.8.10, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /mnt/c/Users/Yk/Documents/Code/alphalabs/env/bin/python
 cachedir: .pytest_cache
 rootdir: /mnt/c/Users/Yk/Documents/Code/alphalabs
-collecting ... collected 3 items
+collecting ... collected 3 items / 2 deselected / 1 selected
 
-test_orderbook.py::test_order_book_1 Submitting B Order: 200@13#Ffuj
-B ORDER IDS:  ['Ffuj']
-Submitting B Order: 150@11#Yy7P
-B ORDER IDS:  ['Ffuj', 'Yy7P']
-Submitting B Order: 100@13#YuFU
-B ORDER IDS:  ['Ffuj', 'Yy7P', 'YuFU']
-Submitting S Order: 150@14#IpD8
-S ORDER IDS:  ['IpD8']
-Submitting S Order: 190@15#y93N
-S ORDER IDS:  ['IpD8', 'y93N']
-Submitting B Order: 80@14#Y5wb
-B ORDER IDS:  ['Ffuj', 'Yy7P', 'YuFU', 'Y5wb']
-0
-0
-0
-0
-0
-2100
-2850
-B: 150@11#Yy7P 100@13#YuFU 80@14#Y5wb
-S:
-[0, 0, 0, 0, 0, 2100, 2850, 'B: 150@11#Yy7P 100@13#YuFU 80@14#Y5wb', 'S:']
-FAILED
-test_orderbook.py::test_order_book_2 Submitting B Order: 300@12#N1Eh
-B ORDER IDS:  ['N1Eh']
-[0]
-Submitting B Order: 250@11#OGxb
-B ORDER IDS:  ['N1Eh', 'OGxb']
+test_orderbook.py::test_order_book_2 [0]
 [0, 0]
-Submitting S Order: 350@14#JSvU
-S ORDER IDS:  ['JSvU']
 [0, 0, 0]
-Submitting S Order: 320@15#uH6w
-S ORDER IDS:  ['JSvU', 'uH6w']
 [0, 0, 0, 0]
+MAX Price 12
 [0, 0, 0, 0, 1800]
 [0, 0, 0, 0, 1800, 4900]
 [0, 0, 0, 0, 1800, 4900, 0]
 [0, 0, 0, 0, 1800, 4900, 0, 2350]
-Submitting B Order: 250@12#2va9
-B ORDER IDS:  ['OGxb', '2va9']
 [0, 0, 0, 0, 1800, 4900, 0, 2350, 0]
-Submitting B Order: 300@11#9zS1
-B ORDER IDS:  ['OGxb', '2va9', '9zS1']
 [0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0]
-['OGxb', '2va9', '9zS1'] 1
-['OGxb', '9zS1'] 2
-Submitting B Order: 480@11#2va9
-B ORDER IDS:  ['OGxb', '9zS1', '2va9']
 [0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0]
 [0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0]
 0
@@ -68,46 +30,10 @@ B ORDER IDS:  ['OGxb', '9zS1', '2va9']
 B: 200@11#OGxb 170@11#9zS1 480@11#2va9
 S: 320@15#uH6w
 [0, 0, 0, 0, 1800, 4900, 0, 2350, 0, 0, 'B: 200@11#OGxb 170@11#9zS1 480@11#2va9', 'S: 320@15#uH6w']
-['B: 200@11#OGxb 250@12#2va9 300@11#9zS1, S: 320@15#uH6w',
+['B: 250@12#2va9 200@11#OGxb 300@11#9zS1, S: 320@15#uH6w',
  'B: 200@11#OGxb 300@11#9zS1 480@11#2va9, S: 320@15#uH6w',
  'B: 200@11#OGxb 170@11#9zS1 480@11#2va9, S: 320@15#uH6w']
 [0, 'B: 200@11#OGxb 170@11#9zS1 480@11#2va9', 'S: 320@15#uH6w']
 PASSED
-test_orderbook.py::test_order_book_fok_order Submitting B Order: 300@9#Y5wb
-B ORDER IDS:  ['Y5wb']
-Submitting B Order: 450@7#IpD8
-B ORDER IDS:  ['Y5wb', 'IpD8']
-Submitting S Order: 250@14#IpD9
-S ORDER IDS:  ['IpD9']
-Submitting S Order: 290@16#IpD10
-S ORDER IDS:  ['IpD9', 'IpD10']
-'B: 100@9#Y5wb 450@7#IpD8, S: 250@14#IpD9 290@16#IpD10'
-'B: 100@9#Y5wb 450@7#IpD8, S: 250@14#IpD9 290@16#IpD10'
-[0, 0, 0, 0, 1800, 0]
-PASSED
 
-=================================== FAILURES ===================================
-______________________________ test_order_book_1 _______________________________
-
-orders = ['SUB LO B Ffuj 200 13', 'SUB LO B Yy7P 150 11', 'SUB LO B YuFU 100 13', 'SUB LO S IpD8 150 14', 'SUB LO S y93N 190 15', 'SUB LO B Y5wb 230 14', ...]
-
-    def test_order_book_1(orders):
-        ob = OrderBook()
-        for order in orders:
-            ob.parse_order(order)
-        print(ob.output_log)
-        expected_output = [0, 0, 0, 0, 0, 2100, 2850,
-                           'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P', 'S:']
->       assert ob.output_log == expected_output
-E       AssertionError: assert [0, 0, 0, 0, 0, 2100, 2850, 'B: 150@11#Yy7P 100@13#YuFU 80@14#Y5wb', 'S:'] == [0, 0, 0, 0, 0, 2100, 2850, 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P', 'S:']
-E         At index 7 diff: 'B: 150@11#Yy7P 100@13#YuFU 80@14#Y5wb' != 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P'
-E         Full diff:
-E         - [0, 0, 0, 0, 0, 2100, 2850, 'B: 80@14#Y5wb 100@13#YuFU 150@11#Yy7P', 'S:']
-E         ?                                 ^   ^  ^^^             ^^   ^  ^^^
-E         + [0, 0, 0, 0, 0, 2100, 2850, 'B: 150@11#Yy7P 100@13#YuFU 80@14#Y5wb', 'S:']
-E         ?                                 ^^   ^  ^^^             ^   ^  ^^^
-
-test_orderbook.py:64: AssertionError
-=========================== short test summary info ============================
-FAILED test_orderbook.py::test_order_book_1 - AssertionError: assert [0, 0, 0...
-========================= 1 failed, 2 passed in 1.99s ==========================
+======================= 1 passed, 2 deselected in 0.17s ========================

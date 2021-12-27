@@ -150,7 +150,7 @@ class OrderBook:
         traded_value = 0
         quantity_to_trade = quantity
         if side == 'B':
-            orders_avaliable = self.asks.get_orders(max_price=price)
+            orders_avaliable = self.asks.get_orders(max_price=price)[::-1]
             orders_qty = self.asks.get_order_quantity(orders_avaliable)
             if orders_qty >= quantity:
                 for order in orders_avaliable:
@@ -168,7 +168,7 @@ class OrderBook:
             return
 
         elif side == 'S':
-            orders_avaliable = self.bids.get_orders(min_price=price)
+            orders_avaliable = self.bids.get_orders(min_price=price)[::-1]
             orders_qty = self.bids.get_order_quantity(orders_avaliable)
             if orders_qty >= quantity:
                 for order in orders_avaliable:
@@ -248,6 +248,7 @@ class OrderList:
 
     def get_max_price_order(self):
         if self.num_orders > 0:
+            print("MAX Price", self.max_price())
             return self.price_map[self.max_price()][0]
         else:
             return None
@@ -337,11 +338,13 @@ class OrderList:
             if idx > 0 and price == price_list[idx-1]:
                 continue
 
-            orders_price_id.extend(
-                [order.order_id for order in self.price_map[price]])
-        for id in self.order_ids:
-            if id in orders_price_id:
-                orders.append(self.order_map[id])
+            orders.extend(
+                [order for order in self.price_map[price]])
+
+        # for id in self.order_ids:
+        #     if id in orders_price_id:
+        #         orders.append(self.order_map[id])
+
         return orders
 
     def get_order_quantity(self, order_list):
