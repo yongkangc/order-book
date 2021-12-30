@@ -1,4 +1,4 @@
-# Alpha lab Matching Engine
+# Order Book Matching Engine
 
 Approach to the problem:
 
